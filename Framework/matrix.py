@@ -24,9 +24,9 @@ class UDPMatrix(object):
         self.display = self.pygame.display.set_mode((self.width * self.px_size, self.height * self.px_size))
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.connect(("tisch.warpzone", 4321))
+        self.sock.connect(("10.0.1.16", 4321))
 
-        self.input_type = "joystick"
+        self.input_type = "keyboard"
 
         self.joystick = None
 
