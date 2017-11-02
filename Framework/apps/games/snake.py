@@ -16,6 +16,7 @@ class Snake(Game):
         self.particle = [random.randint(0, 34), random.randint(0, 19)]
         self.snake = [[random.randint(0, 34), random.randint(0, 19)]]
         self.direction = [1, 0]
+        self.speed = 1
         random.shuffle(self.direction)
         self.length = 3
         self.ingame = False
@@ -38,11 +39,20 @@ class Snake(Game):
 
     def loop(self):
         if self.ingame:
-            if self.keys_down["LEFT"] and not self.last_keys_down["LEFT"]: self.direction = [-1, 0]
-            if self.keys_down["RIGHT"] and not self.last_keys_down["RIGHT"]: self.direction = [1, 0]
-            if self.keys_down["UP"] and not self.last_keys_down["UP"]: self.direction = [0, -1]
-            if self.keys_down["DOWN"] and not self.last_keys_down["DOWN"]: self.direction = [0, 1]
-            if self.keys_down["B"] and not self.last_keys_down["B"]:
+            if self.is_key_down("LEFT"):
+                if not self.direction[0] == 1:
+                    self.direction = [-1, 0]
+            if self.is_key_down("RIGHT"):
+                if not self.direction[0] == -1:
+                    self.direction = [1, 0]
+            if self.is_key_down("UP"):
+                if not self.direction[1] == 1:
+                    self.direction = [0, -1]
+            if self.is_key_down("DOWN"):
+                if not self.direction[1] == -1:
+                    self.direction = [0, 1]
+
+            if self.is_key_down("B"):
                 self.ingame = False
                 self.firstrun = False
                 self.firstmen = True
@@ -52,8 +62,8 @@ class Snake(Game):
             self.frame[particle_y, particle_x] = theme["snake_food"]
 
             newpoint = list(self.snake[-1])
-            newpoint[0] = (newpoint[0] + self.direction[0]) % 35
-            newpoint[1] = (newpoint[1] + self.direction[1]) % 20
+            newpoint[0] = (newpoint[0] + int(self.direction[0] * self.speed)) % 35
+            newpoint[1] = (newpoint[1] + int(self.direction[1] * self.speed)) % 20
             self.snake.append(newpoint)
 
             if newpoint in self.snake[:-1]:
@@ -67,7 +77,7 @@ class Snake(Game):
             if len(self.snake) > self.length:
                 self.snake.pop(0)
 
-            time.sleep(0.07)
+            time.sleep(0.03)
 
             for point in self.snake:
                 point_x, point_y = point

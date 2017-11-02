@@ -24,6 +24,7 @@ class Settings(object):
 
         if type(self.matrix) == mx.MatrixSimulator:
             self.options.update({"Mode": self.matrix.do_mode_change})
+            self.options.update({"Fullscr.": self.matrix.do_fullscreen_change})
 
         self.keys = self.options.keys()
         self.index = 0

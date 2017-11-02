@@ -6,6 +6,7 @@ from theme import theme
 from settings import Settings
 from game_handler import GameHandler
 from ambient_handler import AmbientHandler
+from Framework.apps.background_apps import conf as background_apps_conf
 
 
 class Menu(object):
@@ -20,12 +21,24 @@ class Menu(object):
             "Ambient": AmbientHandler(self.matrix, self)
         }
 
+        self.background_app_labels = background_apps_conf.background_apps
+        self.background_apps = []
+        for app_label in self.background_app_labels:
+            app = app_label(self.matrix, self)
+            app.start()
+            self.background_apps.append(app)
+
+        self.background = False
+        self.active_background_app = None
+
         self.keys = self.points.keys()
         self.index = 0
         self.active = self
 
         self.keys_down = self.matrix.get_keys()
         self.last_keys_down = self.keys_down
+
+        self.active_paused = False
 
         self.back_time = time.time()
         self.standby_timeout = 20
@@ -38,6 +51,17 @@ class Menu(object):
         self.active = self.points["Ambient"]
         time.sleep(0.1)
         self.active.standby()
+
+    def enable_background_app(self, app):
+        self.background = True
+        self.active_background_app = app
+        self.active_paused = True
+
+    def disable_background_app(self):
+        if self.background:
+            self.active_paused = False
+            self.background = False
+            self.active_background_app = None
 
     def self_update(self, keys_down):
         self.last_keys_down = self.keys_down
@@ -87,9 +111,15 @@ class Menu(object):
         return self.frame
 
     def draw(self):
-        self.matrix.set_frame(self.active.get_frame())
+        if not self.background:
+            self.matrix.set_frame(self.active.get_frame())
+        else:
+            self.matrix.set_frame(self.active_background_app.get_frame())
         # time.sleep(0.05)
 
     def update(self, keys_down):
-        self.active.self_update(keys_down)
+        if not self.active_paused:
+            self.active.self_update(keys_down)
+        elif self.active_background_app is not None and self.background:
+            self.active_background_app.update(keys_down)
 

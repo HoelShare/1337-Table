@@ -1,6 +1,6 @@
 from Framework import matrix, menu
 
-matrix = matrix.MatrixSimulator()
+matrix = matrix.UDPMatrix()
 
 menu = menu.Menu(matrix)
 

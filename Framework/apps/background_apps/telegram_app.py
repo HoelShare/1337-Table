@@ -5,9 +5,10 @@ import threading
 import subprocess
 from PIL import Image
 import time
-from Framework.font import render_text
+import os
 
-from Framework.apps.ambient import Ambient
+from Framework.font import render_text
+from Framework.apps.background_apps import BackgroundApp
 
 
 class TelegramBotThread(threading.Thread):
@@ -17,6 +18,7 @@ class TelegramBotThread(threading.Thread):
 
         self.parent = parent
 
+        # TODO: Generate new bot and don't push keys to github :)
         self.bot = telegram.Bot('357068228:AAHZmriAYgH1ywcFX4JOuOEp5t7BZFFzZ1U')
         # self.bot = telegram.Bot('453991406:AAG_pYzmFSQT4gYnAcI4GNECMGXd0ZXlyYo')  # Backup
         try:
@@ -36,6 +38,7 @@ class TelegramBotThread(threading.Thread):
                     self.parent.new_text = True
                     if not update.message.text is None:
                         self.parent.text = update.message.text.strip()
+
     def run(self):
         while 1:
             try:
@@ -46,7 +49,7 @@ class TelegramBotThread(threading.Thread):
                 self.update_id += 1
 
 
-class Telegram(Ambient):
+class Telegram(BackgroundApp):
     def __init__(self, matrix, parent):
         super(Telegram, self).__init__(matrix, parent)
 
@@ -60,6 +63,8 @@ class Telegram(Ambient):
 
         self.bot = TelegramBotThread(self)
         self.bot.start()
+
+        self.set_loop_interval(1)  # Sleep 1 second after update
 
     def loop(self):
 
@@ -75,32 +80,33 @@ class Telegram(Ambient):
                 render_text(self.actual_render, (255, 255, 255), (0, 0, 0), self.text, 1, 8)
                 self.new_text = False
                 self.show_mode = "text"
+                self.go_to_foreground()
+                self.schedule_background(timedelta=10)
             elif self.new_photo:
                 self.new_photo = False
                 self.show_mode = "photo"
                 ext = self.photo.split(".")[-1]
-                print "started download"
-                if subprocess.call(["wget", "-O", "/tmp/image.%s" % ext, self.photo]) == 0:
-                    print "finished download"
-                    im = Image.open("/tmp/image.%s" % ext)
-                    im.thumbnail((35, 20), Image.ANTIALIAS)
-                    data = list(im.getdata())
-                    width, height = im.size
-                    tmp = np.zeros((height, width, 3))
-                    i = 0
-                    for y in range(0, height):
-                        for x in range(0, width):
-                            tmp[y, x] = data[i]
-                            i += 1
-                    self.imshowframe = np.zeros((20, 35, 3), dtype=np.uint8)
-                    x = (35 / 2) - (width / 2)
-                    y = (20 / 2) - (height / 2)
-                    print tmp.shape
-                    self.imshowframe[y:y + height, x:x + width] = np.uint8(tmp)
-                else:
-                    self.show_mode = ""
-                    self.text = "Failed to show image"
-                    self.new_text = True
+                with open(os.devnull, 'w') as devnull:
+                    if subprocess.call(["wget", "-O", "/tmp/image.%s" % ext, self.photo], stdout=devnull) == 0:
+                        im = Image.open("/tmp/image.%s" % ext)
+                        im.thumbnail((35, 20), Image.ANTIALIAS)
+                        data = list(im.getdata())
+                        width, height = im.size
+                        tmp = np.zeros((height, width, 3))
+                        i = 0
+                        for y in range(0, height):
+                            for x in range(0, width):
+                                tmp[y, x] = data[i]
+                                i += 1
+                        self.imshowframe = np.zeros((20, 35, 3), dtype=np.uint8)
+                        x = (35 / 2) - (width / 2)
+                        y = (20 / 2) - (height / 2)
+                        self.imshowframe[y:y + height, x:x + width] = np.uint8(tmp)
+                        subprocess.call(["rm", "/tmp/image.%s" % ext])  # remove image to free storage
+                    else:
+                        self.show_mode = ""
+                        self.text = "Failed to show image"
+                        self.new_text = True
 
             if self.show_mode == "text":
                 if self.actual_render.shape[1] <= 35:

@@ -151,7 +151,7 @@ class MatrixSimulator(object):
 
         self.display = self.pygame.display.set_mode((self.width * self.px_size, self.height * self.px_size))
 
-        self.mode = True  # [olel] True: Circles, False: Rects
+        self.mode = False  # [olel] True: Circles, False: Rects
 
         self.joystick = None
 
@@ -172,6 +172,9 @@ class MatrixSimulator(object):
         self.mode = not self.mode
         self.display.fill((0, 0, 0))
 
+    def do_fullscreen_change(self):
+        self.pygame.display.toggle_fullscreen()
+
     def change_to_keyboard(self):
         self.input_type = "keyboard"
 
@@ -179,7 +182,6 @@ class MatrixSimulator(object):
         if self.joystick is None:
             self.enable_joystick()
         self.input_type = "joystick"
-
 
     def set_frame(self, frame):
         f_height, f_width, f_colors = frame.shape
