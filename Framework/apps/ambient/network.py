@@ -6,7 +6,7 @@ from Framework.theme import theme  # Um auf Themes zuzugreifen
 
 import time
 import colorsys
-import multiprocessing
+import threading
 import Queue # needed to match Queue.Empty exception
 import pcap
 import binascii
@@ -217,7 +217,7 @@ class Color(object):
         super(Color, self).__setattr__('blue', blue * 255.0)
 
 
-class Capture(multiprocessing.Process):
+class Capture(threading.Thread):
 
     queue = None
     started = None
@@ -276,8 +276,8 @@ class Network(Ambient):
 
         super(Network, self).__init__(matrix, parent)
         print "NETWORK INIT"
-        self.queue = multiprocessing.Queue(maxsize=2)
-        #self.queue = Queue.LifoQueue(maxsize=1)
+        #self.queue = threading.Queue(maxsize=2)
+        self.queue = Queue.LifoQueue(maxsize=1)
         self.capture = Capture(self.queue)
         #self.max_addr = 4294967295 # uint32 maximum size
         
