@@ -45,7 +45,7 @@ class Audio(Ambient):
         self.am = np.argmax(vals)
         v = vals[self.am] / 255.
         r = v * 15
-        if abs(self.am - self.prev_am) > 25:
+        if abs(self.am - self.prev_am) > 35:
             self.y = random.randint(0, 19)
             self.x = random.randint(0, 34)
         cr, cg, cb = self.colors[self.y, self.x]

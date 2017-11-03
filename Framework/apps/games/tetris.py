@@ -26,8 +26,12 @@ class Block(object):
         self.height, self.width = self.shape.shape
 
     def rot(self):
+        prev = self.shape.copy()
         self.shape = np.rot90(self.shape)
         self.recalc()
+        if int(self.x + self.width) > 10:
+            self.shape = prev.copy()
+            self.recalc()
 
     def draw(self, frame):
         for x in range(0, self.width):
@@ -55,19 +59,31 @@ class Block(object):
 
         return True
 
-    def move_left(self):
-        self.move_horizontal(-self.speed)
+    def move_left(self, ibm):
+        return self.move_horizontal(-self.speed, ibm)
 
-    def move_right(self):
-        self.move_horizontal(self.speed)
+    def move_right(self, ibm):
+        return self.move_horizontal(self.speed, ibm)
 
-    def move_horizontal(self, x):
-        prev = self.x
+    def move_horizontal(self, x, ibm):
+
+        if int(self.x + self.width + x) >= 10:
+            return False
+        if int(self.x + x) < 0:
+            return False
+
+        y0 = int(self.y)
+        y1 = int(self.y + self.height)
+        x0 = int(self.x + x)
+        x1 = int(self.x + self.width + x)
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                if ibm[y, x] and self.shape[y - y0, x - x0]:
+                    return False
+
         self.x += x
-        if self.x < 0:
-            self.x = prev
-        if int(self.x + self.width) > 10:
-            self.x = prev
+
+        return True
 
     def put_ibm(self, ibm):
         for x in range(0, self.width):
@@ -142,9 +158,9 @@ class Tetris(Game):
         self.active_block.draw(self.frame)
 
         if self.is_key_pressed("LEFT"):
-            self.active_block.move_left()
+            self.active_block.move_left(ibm)
         if self.is_key_pressed("RIGHT"):
-            self.active_block.move_right()
+            self.active_block.move_right(ibm)
         if self.is_key_up("UP"):
             self.active_block.rot()
 

@@ -2,11 +2,12 @@
 Breakout by ands
 """
 
-import numpy as np
 from Framework.apps.games import Game
+from Framework.theme import theme
+
 import random
 import math
-import time
+
 
 
 class Breakout(Game):
@@ -17,6 +18,9 @@ class Breakout(Game):
         self.ball = [17, 17]
         self.ball_attached = True
         self.speed = 0.7
+
+        self.level = None
+        self.count = 0
 
         self.loadlevel()
 
@@ -42,11 +46,11 @@ class Breakout(Game):
             for x in range(0, 7):
                 c = (0, 0, 0)
                 if self.level[y][x] == 3:
-                    c = (255, 255, 255)
+                    c = theme["breakout_block_3"]
                 if self.level[y][x] == 2:
-                    c = (255, 255, 0)
+                    c = theme["breakout_block_2"]
                 if self.level[y][x] == 1:
-                    c = (255, 0, 0)
+                    c = theme["breakout_block_1"]
                 for i in range(0, 5):
                     self.frame[y * 2 + 0, x * 5 + i] = c
                     self.frame[y * 2 + 1, x * 5 + i] = c
@@ -59,7 +63,7 @@ class Breakout(Game):
             self.frame[18, self.paddle_x] = (0, 0, 0)
             self.paddle_x = self.paddle_x + 1
         for i in range(0, 5):
-            self.frame[18, self.paddle_x + i] = (0, 255, 0)
+            self.frame[18, self.paddle_x + i] = theme["breakout_paddle"]
 
         # Ball
         self.frame[int(self.ball[1]), int(self.ball[0])] = (0, 0, 0)
@@ -122,9 +126,7 @@ class Breakout(Game):
                     if cell[1] != prev_cell[1]:
                         self.ball_velocity[1] = -self.ball_velocity[1]
 
-        self.frame[int(self.ball[1]), int(self.ball[0])] = (0, 0, 255)
+        self.frame[int(self.ball[1]), int(self.ball[0])] = theme["breakout_ball"]
 
         if self.is_key_up("B"):
             self.parent.back()
-
-        time.sleep(0.03)  # [Ole]: Benoetigt, ignorieren!

@@ -78,10 +78,11 @@ class Snake(Game):
                 self.snake.pop(0)
 
             time.sleep(0.03)
-
+            n = 1
             for point in self.snake:
                 point_x, point_y = point
-                self.frame[point_y, point_x] = theme["snake_snake"]
+                self.frame[point_y, point_x] = np.uint8(np.array(theme["snake_snake"]) * (n / float(self.length)))
+                n += 1
         else:
             render_text(self.get_self_frame(), theme["header"], theme["snake_background"], "Snake", 0, 0)
             if self.menu_point == "top":

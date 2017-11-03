@@ -73,12 +73,12 @@ class Ball(object):
         if int(self.x) == self.left_x:
             if int(self.y) >= self.left_paddle.y0 and int(self.y) <= self.left_paddle.y1:
                 vy = uniform(-self.over_angle, self.max_angle)
-                if self.left_paddle.y >= 10:
+                if self.right_paddle.y < 10:
                     vy *= -1
                 self.velocity = [self.speed, vy]
             else:
                 vy = uniform(-self.over_angle, self.max_angle)
-                if self.left_paddle.y >= 10:
+                if self.right_paddle.y < 10:
                     vy *= -1
                 self.velocity = [-self.speed, vy]
                 self.x = 17
@@ -87,12 +87,12 @@ class Ball(object):
         if int(self.x) == self.right_x:
             if int(self.y) >= self.right_paddle.y0 and int(self.y) <= self.right_paddle.y1:
                 vy = uniform(self.over_angle, -self.max_angle)
-                if self.left_paddle.y >= 10:
+                if self.left_paddle.y < 10:
                     vy *= -1
                 self.velocity = [-self.speed, vy]
             else:
                 vy = uniform(-self.over_angle, self.max_angle)
-                if self.left_paddle.y >= 10:
+                if self.left_paddle.y < 10:
                     vy *= -1
                 self.velocity = [self.speed, vy]
                 self.x = 17
