@@ -2,13 +2,14 @@ from Framework.apps.games import Game
 from random import randint
 from Framework.theme import theme
 import copy
-import time
+import numpy as np
+
 
 class Block(object):
     name = "Block"
     rotationIndex = 0
     speed = 0.2
-    shapes = []
+    shape = []
     xPos = yPos = 0
 
     def __init__(self, stage):
@@ -21,14 +22,13 @@ class Block(object):
     def rotate(self):
         if self.canRotate() == False: return False
         self.shape = self.getRotationShape()
-        self.rotationIndex = (self.rotationIndex + 1) % len(self.shapes)
         return True
 
     def getRotationShape(self):
-        return self.shapes[(self.rotationIndex + 1) % len(self.shapes)]
+        return np.rot90(self.shape)
 
     def getShape(self):
-        return self.shapes[self.rotationIndex]
+        return self.shape
 
     def getWidth(self):
         return len(self.getShape())
@@ -80,7 +80,7 @@ class Block(object):
         for x in range(self.getWidth()):
             for y in range(self.getHeight()):
                 shape = self.getShape()
-                if shape[x][y]:
+                if shape[x][y] != 0:
                     dx = x + int(self.xPos) + self.stage.mapOffset[0]
                     dy = y + int(self.yPos) + self.stage.mapOffset[1]
                     frame[dy, dx] = self.color
@@ -93,11 +93,10 @@ class Block(object):
 
 
 class OBlock(Block):
-    shapes = [
-        [
-            [1, 1],
-            [1, 1]
-        ]
+    shape = [
+        [1, 1],
+        [1, 1]
+
     ]
     color = theme["tetris_1_color"]
     name = "o"
@@ -107,16 +106,11 @@ class OBlock(Block):
 
 
 class IBlock(Block):
-    shapes = [
-        [
-            [1],
-            [1],
-            [1],
-            [1]
-        ],
-        [
-            [1, 1, 1, 1]
-        ]
+    shape = [
+        [1],
+        [1],
+        [1],
+        [1]
     ]
     color = theme["tetris_2_color"]
     name = "I"
@@ -126,25 +120,10 @@ class IBlock(Block):
 
 
 class LBlock(Block):
-    shapes = [
-        [
-            [1, 0],
-            [1, 0],
-            [1, 1]
-        ],
-        [
-            [1, 1, 1],
-            [1, 0, 0]
-        ],
-        [
-            [1, 1],
-            [0, 1],
-            [0, 1]
-        ],
-        [
-            [0, 0, 1],
-            [1, 1, 1]
-        ]
+    shape = [
+        [1, 0],
+        [1, 0],
+        [1, 1]
     ]
     color = theme["tetris_3_color"]
     name = "L"
@@ -154,25 +133,10 @@ class LBlock(Block):
 
 
 class RevLBlock(Block):
-    shapes = [
-        [
-            [0, 1],
-            [0, 1],
-            [1, 1]
-        ],
-        [
-            [1, 0, 0],
-            [1, 1, 1]
-        ],
-        [
-            [1, 1],
-            [1, 0],
-            [1, 0]
-        ],
-        [
-            [1, 1, 1],
-            [0, 0, 1]
-        ]
+    shape = [
+        [0, 1],
+        [0, 1],
+        [1, 1]
     ]
     color = theme["tetris_4_color"]
     name = "RevL"
@@ -182,16 +146,9 @@ class RevLBlock(Block):
 
 
 class SBlock(Block):
-    shapes = [
-        [
-            [0, 1, 1],
-            [1, 1, 0]
-        ],
-        [
-            [1, 0],
-            [1, 1],
-            [0, 1]
-        ]
+    shape = [
+        [0, 1, 1],
+        [1, 1, 0]
     ]
     color = theme["tetris_5_color"]
     name = "S"
@@ -201,16 +158,9 @@ class SBlock(Block):
 
 
 class RevSBlock(Block):
-    shapes = [
-        [
-            [1, 1, 0],
-            [0, 1, 1]
-        ],
-        [
-            [0, 1],
-            [1, 1],
-            [1, 0]
-        ]
+    shape = [
+        [1, 1, 0],
+        [0, 1, 1]
     ]
     color = theme["tetris_6_color"]
     name = "RevS"
@@ -220,25 +170,9 @@ class RevSBlock(Block):
 
 
 class TBlock(Block):
-    shapes = [
-        [
-            [0, 1, 0],
-            [1, 1, 1]
-        ],
-        [
-            [1, 0],
-            [1, 1],
-            [1, 0]
-        ],
-        [
-            [1, 1, 1],
-            [0, 1, 0]
-        ],
-        [
-            [0, 1],
-            [1, 1],
-            [0, 1]
-        ]
+    shape = [
+        [0, 1, 0],
+        [1, 1, 1]
     ]
     color = theme["tetris_7_color"]
     name = "T"
@@ -331,10 +265,12 @@ class Stage(object):
     def endGame(self):
         self.isGame = False
 
+
 class Tetris(Game):
     actualBlock = None
     newBlock = True
     counter = 0
+
     def __init__(self, matrix, parent):
         super(Tetris, self).__init__(matrix, parent)
         self.stage = Stage()
