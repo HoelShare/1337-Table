@@ -3,7 +3,7 @@ from random import randint
 from Framework.theme import theme
 import copy
 import numpy as np
-
+from Framework.font import render_text
 
 class Block(object):
     name = "Block"
@@ -182,16 +182,18 @@ class TBlock(Block):
 
 
 class Stage(object):
-    width = 10
+    width = 15
     height = 20
     mapOffset = (1, 0)
     isGame = True
+    score = 0
 
     def __init__(self):
         self.world = [[0 for y in range(self.height)] for x in range(self.width)]
 
     def update(self):
         points = self.removeCompleteLines()
+        self.score = self.score + points
 
     def removeCompleteLines(self):
         counter = 0
@@ -211,14 +213,11 @@ class Stage(object):
             for x in range(self.width):
                 self.world[x][y] = self.world[x][y - 1]
 
-    def draw(self, frame):
-        if self.isGame:
-            self.drawGame(frame)
-        else:
-            self.drawScore(frame)
+    def draw(self, frame, nextBlock):
+        self.drawGame(frame, nextBlock)
 
-    def drawGame(self, frame):
-        self.drawBoard(frame)
+    def drawGame(self, frame, nextBlock):
+        self.drawBoard(frame, nextBlock)
         for x in range(self.width):
             for y in range(self.height):
                 if self.world[x][y]:
@@ -226,11 +225,21 @@ class Stage(object):
                     dy = y + self.mapOffset[1]
                     frame[dy, dx] = self.world[x][y]
 
-    def drawScore(self, frame):
-        pass
+    def drawBoard(self, frame, nextBlock):
+        for y in range(self.height):
+            frame[y, self.mapOffset[0] - 1] = theme["tetris_borders"]
+            frame[y, self.width + self.mapOffset[0]] = theme["tetris_borders"]
 
-    def drawBoard(self, frame):
-        pass
+        render_text(frame, theme["text"], theme["tetris_background"], "%x" % self.score, self.width + self.mapOffset[0] + 2, 1)
+
+        yOffset = 8
+        xOffset = self.mapOffset[0] + self.width + 5
+        for y in range(nextBlock.getHeight()):
+            for x in range(nextBlock.getWidth()):
+                shape = nextBlock.getShape()
+                if shape[x][y] != 0:
+                    frame[y+yOffset, x+xOffset] = nextBlock.color
+
 
     def canMove(self, xPos, yPos, block):
         isMoveable = self.checkBorder(block, xPos, yPos)
@@ -268,17 +277,30 @@ class Stage(object):
 
 class Tetris(Game):
     actualBlock = None
+    nextBlock = None
     newBlock = True
     counter = 0
 
     def __init__(self, matrix, parent):
         super(Tetris, self).__init__(matrix, parent)
         self.stage = Stage()
+        self.actualBlock = Block.createRandom(self.stage)
+        self.nextBlock = Block.createRandom(self.stage)
 
     def loop(self):
+        if self.stage.isGame:
+            self.gameLoop()
+        else:
+            self.scoreBoardLoop()
+
+        if self.is_key_down("B"):
+            self.parent.back()
+
+    def gameLoop(self):
         self.clear()
-        if self.actualBlock is None or self.newBlock:
-            self.actualBlock = Block.createRandom(self.stage)
+        if self.newBlock:
+            self.actualBlock = self.nextBlock
+            self.nextBlock = Block.createRandom(self.stage)
             self.counter = 0
         self.newBlock = self.actualBlock.update(self, self.counter)
         self.stage.update()
@@ -287,12 +309,11 @@ class Tetris(Game):
         else:
             self.actualBlock.draw(self.frame)
 
-        self.stage.draw(self.frame)
+        self.stage.draw(self.frame, self.nextBlock)
         self.counter = self.counter + 1
 
-        if self.is_key_down("B"):
-            self.parent.back()
-
+    def scoreBoardLoop(self):
+        pass
 
 if __name__ == "__main__":
     stage = Stage()

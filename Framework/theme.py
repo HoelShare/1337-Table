@@ -23,13 +23,13 @@ theme = {
     "clock_spacer": (255, 127, 0),
 
     "tetris_borders": (70, 70, 70),
-    "tetris_1_color": (255, 0, 255),  # O SHAPE # [olel] TODO: Change tetris colors
-    "tetris_2_color": (255, 255, 0),  # I SHAPE
-    "tetris_3_color": (0, 255, 255),  # L SHAPE
-    "tetris_4_color": (255, 0, 255),  # REV L SHAPE
-    "tetris_5_color": (0, 255, 255),  # S SHAPE
-    "tetris_6_color": (0, 0, 255),  # REV S SHAPE
-    "tetris_7_color": (255, 255, 0),  # T SHAPE
+    "tetris_1_color": (0, 0, 255),      # O SHAPE
+    "tetris_2_color": (0, 255, 0),      # I SHAPE
+    "tetris_3_color": (255, 0, 0),      # L SHAPE
+    "tetris_4_color": (255, 128, 0),    # REV L SHAPE
+    "tetris_5_color": (0, 128, 255),    # S SHAPE
+    "tetris_6_color": (255, 255, 255),  # REV S SHAPE
+    "tetris_7_color": (255, 255, 0),    # T SHAPE
     "tetris_background": (0, 0, 0),
 
     "breakout_block_3": (255, 255, 255),
